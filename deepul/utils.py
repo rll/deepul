@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pickle
 import torch
+import torch.nn.functional as F
 from torchvision.utils import make_grid
 
 
@@ -75,9 +76,16 @@ def show_samples(samples, fname=None, nrow=10, title='Samples'):
 def load_pickled_data(fname, include_labels=False):
     with open(fname, 'rb') as f:
         data = pickle.load(f)
+
+    train_data, test_data = data['train'], data['test']
+    if 'mnist.pkl' in fname:
+        # Binarize MNIST
+        train_data = (train_data > 127.5).astype('uint8')
+        test_data = (test_data > 127.5).astype('uint8')
+
     if include_labels:
-        return data['train'], data['test'], data['train_labels'], data['test_labels']
-    return data['train'], data['test']
+        return train_data, test_data, data['train_labels'], data['test_labels']
+    return train_data, test_data
 
 
 def get_data_dir(hw_number):

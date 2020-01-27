@@ -135,7 +135,7 @@ def visualize_q2b_data(dset_type):
         raise Exception('Invalid dset type:', dset_type)
 
     idxs = np.random.choice(len(train_data), replace=False, size=(100,))
-    images = train_data[idxs]
+    images = train_data[idxs] * 255
     show_samples(images, title=f'{name} Samples')
 
 
@@ -256,3 +256,49 @@ def q3d_save_results(dset_type, q3_d):
     save_training_plot(train_losses, test_losses, f'Q3(d) Train Plot',
                        f'results/q3_d_train_plot.png')
     show_samples(samples, f'results/q3_d_samples.png')
+
+
+# Question 4
+def q4ab_save_results(part, fn):
+    data_dir = get_data_dir(1)
+    train_data, test_data = load_pickled_data(join(data_dir, 'mnist_colored.pkl'))
+    img_shape = (28, 28, 3)
+    train_losses, test_losses, samples = fn(train_data, test_data, img_shape)
+    print(f'Final Test Loss: {test_losses[-1]:.4f}')
+    save_training_plot(train_losses, test_losses, f'Q4({part}) Train Plot',
+                       f'results/q4_{part}_train_plot.png')
+    show_samples(samples, f'results/q4_{part}_samples.png')
+
+
+def q4c_save_results(q4_c):
+    data_dir = get_data_dir(1)
+    train_data, test_data = load_pickled_data(join(data_dir, 'mnist_colored.pkl'))
+    img_shape = (28, 28, 3)
+    train_losses, test_losses, gray_samples, color_samples = q4_c(train_data, test_data, img_shape)
+    gray_samples, color_samples = gray_samples.astype('float32'), color_samples.astype('float32')
+    gray_samples *= 255
+    gray_samples = gray_samples.repeat(3, axis=-1)
+    color_samples = color_samples / 3 * 255
+    samples = np.stack((gray_samples, color_samples), axis=1).reshape((-1,) + img_shape)
+
+    print(f'Final Test Loss: {test_losses[-1]:.4f}')
+    save_training_plot(train_losses, test_losses, f'Q4(c) Train Plot',
+                       f'results/q4_c_train_plot.png')
+    show_samples(samples, f'results/q4_c_samples.png')
+
+
+def q4d_save_results(q4_d):
+    data_dir = get_data_dir(1)
+    train_data, test_data = load_pickled_data(join(data_dir, 'mnist.pkl'))
+    train_data, test_data = torch.FloatTensor(train_data).permute(0, 3, 1, 2), torch.FloatTensor(test_data).permute(0, 3, 1, 2)
+    train_data = F.interpolate(train_data, scale_factor=2, mode='bilinear')
+    test_data = F.interpolate(test_data, scale_factor=2, mode='bilinear')
+    train_data, test_data = train_data.permute(0, 2, 3, 1).numpy(), test_data.permute(0, 2, 3, 1).numpy()
+    train_data, test_data = (train_data > 0.5).astype('uint8'), (test_data > 0.5).astype('uint8')
+
+    train_losses, test_losses, samples = q4_d(train_data, test_data)
+    print(f'Final Test Loss: {test_losses[-1]:.4f}')
+    save_training_plot(train_losses, test_losses, f'Q4(d) Train Plot',
+                       f'results/q4_d_train_plot.png')
+    show_samples(samples, f'results/q4_d_samples.png')
+
