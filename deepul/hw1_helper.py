@@ -1,4 +1,4 @@
-from utils import *
+from .utils import *
 
 
 # Question 1
@@ -224,6 +224,3 @@ def q3c_save_results():
                     f'results/q3_c_train_plot.png')
   save_samples(samples, f'results/q3_c_samples.png')
 
-if __name__ == '__main__':
-    visualize_q2b_data(1)
-    visualize_q2b_data(2)
