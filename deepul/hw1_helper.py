@@ -28,16 +28,18 @@ def q1_sample_data_2():
 def visualize_q1_data(dset_type):
     if dset_type == 1:
         train_data, test_data = q1_sample_data_1()
+        d = 20
     elif dset_type == 2:
         train_data, test_data = q1_sample_data_2()
+        d = 100
     else:
         raise Exception('Invalid dset_type:', dset_type)
     fig, (ax1, ax2) = plt.subplots(1, 2)
     ax1.set_title('Train Data')
-    ax1.hist(train_data, density=True)
+    ax1.hist(train_data, bins=np.arange(d) - 0.5, density=True)
     ax1.set_xlabel('x')
     ax2.set_title('Test Data')
-    ax2.hist(test_data, density=True)
+    ax2.hist(test_data, bins=np.arange(d) - 0.5, density=True)
     print(f'Dataset {dset_type}')
     plt.show()
 
