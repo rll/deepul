@@ -34,7 +34,7 @@ def visualize_q1_data(dset_type):
         d = 100
     else:
         raise Exception('Invalid dset_type:', dset_type)
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 8))
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 8))
     ax1.set_title('Train Data')
     ax1.hist(train_data, bins=np.arange(d) - 0.5, density=True)
     ax1.set_xlabel('x')
@@ -55,7 +55,6 @@ def q1_save_results(dset_type, part, fn):
         raise Exception('Invalid dset_type:', dset_type)
 
     train_losses, test_losses, distribution = fn(train_data, test_data, d, dset_type)
-    assert len(train_losses) == len(test_losses), 'Both train/test loss arrays should be the same length'
     assert np.allclose(np.sum(distribution), 1), f'Distribution sums to {np.sum(distribution)} != 1'
 
     print(f'Final Test Loss: {test_losses[-1]:.4f}')
@@ -167,8 +166,6 @@ def q2_save_results(dset_type, part, fn):
 
     if part == 'a':
         train_losses, test_losses, distribution = fn(train_data, test_data, d, dset_type)
-
-        assert len(train_losses) == len(test_losses), 'Both train/test loss arrays should be the same length'
         assert np.allclose(np.sum(distribution), 1), f'Distribution sums to {np.sum(distribution)} != 1'
 
         print(f'Final Test Loss: {test_losses[-1]:.4f}')
