@@ -34,7 +34,7 @@ def visualize_q1_data(dset_type):
         d = 100
     else:
         raise Exception('Invalid dset_type:', dset_type)
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 8))
+    fig, (ax1, ax2) = plt.subplots(1, 2)
     ax1.set_title('Train Data')
     ax1.hist(train_data, bins=np.arange(d) - 0.5, density=True)
     ax1.set_xlabel('x')
