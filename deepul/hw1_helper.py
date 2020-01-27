@@ -52,7 +52,7 @@ def q1_save_results(dset_type, part, fn):
     else:
         raise Exception('Invalid dset_type:', dset_type)
 
-    train_losses, test_losses, distribution = fn(train_data, test_data, d)
+    train_losses, test_losses, distribution = fn(train_data, test_data, d, dset_type)
     assert len(train_losses) == len(test_losses), 'Both train/test loss arrays should be the same length'
     assert np.allclose(np.sum(distribution), 1), f'Distribution sums to {np.sum(distribution)} != 1'
 
@@ -164,7 +164,7 @@ def q2_save_results(dset_type, part, fn):
         raise Exception('Invalid part', part)
 
     if part == 'a':
-        train_losses, test_losses, distribution = fn(train_data, test_data, d)
+        train_losses, test_losses, distribution = fn(train_data, test_data, d, dset_type)
 
         assert len(train_losses) == len(test_losses), 'Both train/test loss arrays should be the same length'
         assert np.allclose(np.sum(distribution), 1), f'Distribution sums to {np.sum(distribution)} != 1'
@@ -176,7 +176,7 @@ def q2_save_results(dset_type, part, fn):
         save_distribution_2d(true_dist, distribution,
                              f'results/q2_{part}_dset{dset_type}_learned_dist.png')
     elif part == 'b':
-        train_losses, test_losses, samples = fn(train_data, test_data, img_shape)
+        train_losses, test_losses, samples = fn(train_data, test_data, img_shape, dset_type)
         print(f'Final Test Loss: {test_losses[-1]:.4f}')
         save_training_plot(train_losses, test_losses, f'Q2({part}) Dataset {dset_type} Train Plot',
                            f'results/q2_{part}_dset{dset_type}_train_plot.png')
@@ -193,7 +193,7 @@ def q3a_save_results(dset_type, q3_a):
         train_data, test_data = load_pickled_data(join(data_dir, 'mnist.pkl'))
         img_shape = (28, 28)
 
-    train_losses, test_losses, samples = q3_a(train_data, test_data, img_shape)
+    train_losses, test_losses, samples = q3_a(train_data, test_data, img_shape, dset_type)
     print(f'Final Test Loss: {test_losses[-1]:.4f}')
     save_training_plot(train_losses, test_losses, f'Q3(a) Dataset {dset_type} Train Plot',
                        f'results/q3_a_dset{dset_type}_train_plot.png')
@@ -210,11 +210,11 @@ def q3b_save_results(q3_b):
     save_samples(samples, f'results/q3_b_samples.png')
 
 
-def q3c_save_results():
+def q3c_save_results(q3_c):
   train_data, test_data = load_pickled_data('mnist_colored.pkl')
   img_shape = (28, 28, 3)
 
-  train_losses, test_losses, samples = q3_b(train_data, test_data, img_shape)
+  train_losses, test_losses, samples = q3_c(train_data, test_data, img_shape)
   samples = samples / 3 * 255
 
   print(f'Final Test Loss: {test_losses[-1]:.4f}')
