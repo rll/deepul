@@ -66,14 +66,12 @@ def q1_save_results(dset_type, part, fn):
 
 
 # Question 2
-def q2_a_sample_data(url, n, d):
+def q2_a_sample_data(image_file, n, d):
     from PIL import Image
     from urllib.request import urlopen
     import io
     import itertools
 
-    fd = urlopen(url)
-    image_file = io.BytesIO(fd.read())
     im = Image.open(image_file).resize((d, d)).convert('L')
     im = np.array(im).astype('float32')
     dist = im / im.sum()
