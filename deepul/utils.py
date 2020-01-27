@@ -68,9 +68,11 @@ def show_samples(samples, fname=None, nrow=10, title='Samples'):
         plt.show()
 
 
-def load_pickled_data(fname):
+def load_pickled_data(fname, include_labels=False):
     with open(fname, 'rb') as f:
         data = pickle.load(f)
+    if include_labels:
+        return data['train'], data['test'], data['train_labels'], data['test_labels']
     return data['train'], data['test']
 
 

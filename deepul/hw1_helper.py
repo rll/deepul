@@ -128,16 +128,16 @@ def visualize_q2b_data(dset_type):
     data_dir = get_data_dir(1)
     if dset_type == 1:
         train_data, test_data = load_pickled_data(join(data_dir, 'shapes.pkl'))
-        print('Shapes Dataset')
+        name = 'Shape'
     elif dset_type == 2:
         train_data, test_data = load_pickled_data(join(data_dir, 'mnist.pkl'))
-        print('MNIST Dataset')
+        name = 'MNIST'
     else:
         raise Exception('Invalid dset type:', dset_type)
 
     idxs = np.random.choice(len(train_data), replace=False, size=(100,))
     images = train_data[idxs]
-    show_samples(images, title='Samples From Dataset')
+    show_samples(images, title=f'{name} Samples')
 
 
 def q2_save_results(dset_type, part, fn):
@@ -194,6 +194,8 @@ def q3a_save_results(dset_type, q3_a):
     elif dset_type == 2:
         train_data, test_data = load_pickled_data(join(data_dir, 'mnist.pkl'))
         img_shape = (28, 28)
+    else:
+        raise Exception()
 
     train_losses, test_losses, samples = q3_a(train_data, test_data, img_shape, dset_type)
     print(f'Final Test Loss: {test_losses[-1]:.4f}')
@@ -202,25 +204,56 @@ def q3a_save_results(dset_type, q3_a):
     show_samples(samples, f'results/q3_a_dset{dset_type}_samples.png')
 
 
-def q3b_save_results(q3_b):
+def q3bc_save_results(dset_type, fn):
     data_dir = get_data_dir(1)
-    train_data, test_data = load_pickled_data(join(data_dir, 'mnist_colored.pkl'))
-    train_losses, test_losses, samples = q3_b(train_data, test_data, (28, 28, 3))
+    if dset_type == 1:
+        train_data, test_data = load_pickled_data(join(data_dir, 'shapes_colored.pkl'))
+        img_shape = (20, 20, 3)
+    elif dset_type == 2:
+        train_data, test_data = load_pickled_data(join(data_dir, 'mnist_colored.pkl'))
+        img_shape = (28, 28, 3)
+    else:
+        raise Exception()
+
+    train_losses, test_losses, samples = fn(train_data, test_data, img_shape, dset_type)
     print(f'final Test Loss: {test_losses[-1]:.4f}')
     save_training_plot(train_losses, test_losses, f'Q3(b) Train Plot',
                        f'results/q3_b_train_plot.png')
     show_samples(samples, f'results/q3_b_samples.png')
 
 
-def q3c_save_results(q3_c):
-  train_data, test_data = load_pickled_data('mnist_colored.pkl')
-  img_shape = (28, 28, 3)
+def visualize_q3b_data(dset_type):
+    data_dir = get_data_dir(1)
+    if dset_type == 1:
+        train_data, test_data = load_pickled_data(join(data_dir, 'shapes_colored.pkl'))
+        name = 'Colored Shape'
+    elif dset_type == 2:
+        train_data, test_data = load_pickled_data(join(data_dir, 'mnist_colored.pkl'))
+        name = 'Colored MNIST'
+    else:
+        raise Exception('Invalid dset type:', dset_type)
 
-  train_losses, test_losses, samples = q3_c(train_data, test_data, img_shape)
-  samples = samples / 3 * 255
+    idxs = np.random.choice(len(train_data), replace=False, size=(100,))
+    images = train_data[idxs].astype('float32') / 3 * 255
+    show_samples(images, title=f'{name} Samples')
 
-  print(f'Final Test Loss: {test_losses[-1]:.4f}')
-  save_training_plot(train_losses, test_losses, f'Q3(c) Train Plot',
-                    f'results/q3_c_train_plot.png')
-  show_samples(samples, f'results/q3_c_samples.png')
 
+def q3d_save_results(dset_type, q3_d):
+    data_dir = get_data_dir(1)
+    if dset_type == 1:
+        train_data, test_data, train_labels, test_labels = load_pickled_data(join(data_dir, 'shapes.pkl'),
+                                                                             include_labels=True)
+        img_shape, n_classes = (20, 20), 4
+    elif dset_type == 2:
+        train_data, test_data, train_labels, test_labels = load_pickled_data(join(data_dir, 'mnist.pkl'),
+                                                                             include_labels=True)
+        img_shape, n_classes = (28, 28), 10
+    else:
+        raise Exception('Invalid dset type:', dset_type)
+
+    train_losses, test_losses, samples = q3_d(train_data, test_data, img_shape, n_classes, dset_type)
+
+    print(f'Final Test Loss: {test_losses[-1]:.4f}')
+    save_training_plot(train_losses, test_losses, f'Q3(d) Train Plot',
+                       f'results/q3_d_train_plot.png')
+    show_samples(samples, f'results/q3_d_samples.png')
