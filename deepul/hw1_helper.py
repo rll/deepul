@@ -34,7 +34,7 @@ def visualize_q1_data(dset_type):
         d = 100
     else:
         raise Exception('Invalid dset_type:', dset_type)
-    fig, (ax1, ax2) = plt.subplots(1, 2)
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 8))
     ax1.set_title('Train Data')
     ax1.hist(train_data, bins=np.arange(d) - 0.5, density=True)
     ax1.set_xlabel('x')
@@ -216,6 +216,8 @@ def q3bc_save_results(dset_type, fn):
         raise Exception()
 
     train_losses, test_losses, samples = fn(train_data, test_data, img_shape, dset_type)
+    samples = samples.astype('float32') / 3 * 255
+
     print(f'final Test Loss: {test_losses[-1]:.4f}')
     save_training_plot(train_losses, test_losses, f'Q3(b) Train Plot',
                        f'results/q3_b_train_plot.png')
