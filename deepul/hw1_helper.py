@@ -197,7 +197,7 @@ def q3a_save_results(dset_type, q3_a):
     print(f'Final Test Loss: {test_losses[-1]:.4f}')
     save_training_plot(train_losses, test_losses, f'Q3(a) Dataset {dset_type} Train Plot',
                        f'results/q3_a_dset{dset_type}_train_plot.png')
-    save_samples(samples, f'results/q3_a_dset{dset_type}_samples.png')
+    show_samples(samples, f'results/q3_a_dset{dset_type}_samples.png')
 
 
 def q3b_save_results(q3_b):
@@ -207,7 +207,7 @@ def q3b_save_results(q3_b):
     print(f'final Test Loss: {test_losses[-1]:.4f}')
     save_training_plot(train_losses, test_losses, f'Q3(b) Train Plot',
                        f'results/q3_b_train_plot.png')
-    save_samples(samples, f'results/q3_b_samples.png')
+    show_samples(samples, f'results/q3_b_samples.png')
 
 
 def q3c_save_results(q3_c):
@@ -220,5 +220,5 @@ def q3c_save_results(q3_c):
   print(f'Final Test Loss: {test_losses[-1]:.4f}')
   save_training_plot(train_losses, test_losses, f'Q3(c) Train Plot',
                     f'results/q3_c_train_plot.png')
-  save_samples(samples, f'results/q3_c_samples.png')
+  show_samples(samples, f'results/q3_c_samples.png')
 
