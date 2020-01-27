@@ -1,11 +1,10 @@
 import os
-from os.path import join, dirname, exists, realpath
+from os.path import join, dirname, exists
 import matplotlib.pyplot as plt
 import numpy as np
 import pickle
 import torch
 from torchvision.utils import make_grid
-import git
 
 
 def savefig(fname, show_figure=True):
@@ -75,12 +74,5 @@ def load_pickled_data(fname):
     return data['train'], data['test']
 
 
-def get_git_root_path():
-    git_repo = git.Repo(realpath(__file__), search_parent_directories=True)
-    git_root = git_repo.git.rev_parse("--show-toplevel")
-    return git_root
-
-
 def get_data_dir(hw_number):
-    git_root = get_git_root_path()
-    return join(git_root, 'homeworks', f'hw{hw_number}', 'data')
+    return join('deepul', 'homeworks', f'hw{hw_number}', 'data')
