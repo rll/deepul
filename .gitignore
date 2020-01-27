@@ -2,3 +2,4 @@
 __pycache__/
 .idea/
 deepul.egg-info/
+*.jpg
