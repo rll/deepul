@@ -69,7 +69,7 @@ def show_samples(samples, fname=None, nrow=10, title='Samples'):
 
 
 def load_pickled_data(fname):
-    with open(join('data', fname), 'rb') as f:
+    with open(fname, 'rb') as f:
         data = pickle.load(f)
     return data['train'], data['test']
 
