@@ -78,8 +78,8 @@ def load_pickled_data(fname, include_labels=False):
         data = pickle.load(f)
 
     train_data, test_data = data['train'], data['test']
-    if 'mnist.pkl' in fname:
-        # Binarize MNIST
+    if 'mnist.pkl' in fname or 'shapes.pkl' in fname:
+        # Binarize MNIST and shapes dataset
         train_data = (train_data > 127.5).astype('uint8')
         test_data = (test_data > 127.5).astype('uint8')
 
