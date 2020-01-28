@@ -204,7 +204,7 @@ def q3a_save_results(dset_type, q3_a):
     show_samples(samples, f'results/q3_a_dset{dset_type}_samples.png')
 
 
-def q3bc_save_results(dset_type, fn):
+def q3bc_save_results(dset_type, part, fn):
     data_dir = get_data_dir(1)
     if dset_type == 1:
         train_data, test_data = load_pickled_data(join(data_dir, 'shapes_colored.pkl'))
@@ -219,9 +219,9 @@ def q3bc_save_results(dset_type, fn):
     samples = samples.astype('float32') / 3 * 255
 
     print(f'Final Test Loss: {test_losses[-1]:.4f}')
-    save_training_plot(train_losses, test_losses, f'Q3(b) Train Plot',
-                       f'results/q3_b_train_plot.png')
-    show_samples(samples, f'results/q3_b_samples.png')
+    save_training_plot(train_losses, test_losses, f'Q3({part}) Dataset {dset_type} Train Plot',
+                       f'results/q3_{part}_dset{dset_type}_train_plot.png')
+    show_samples(samples, f'results/q3_{part}_dset{dset_type}_samples.png')
 
 
 def visualize_q3b_data(dset_type):
@@ -257,9 +257,9 @@ def q3d_save_results(dset_type, q3_d):
     samples = samples.astype('float32') * 255
 
     print(f'Final Test Loss: {test_losses[-1]:.4f}')
-    save_training_plot(train_losses, test_losses, f'Q3(d) Train Plot',
-                       f'results/q3_d_train_plot.png')
-    show_samples(samples, f'results/q3_d_samples.png')
+    save_training_plot(train_losses, test_losses, f'Q3(d) Dataset {dset_type} Train Plot',
+                       f'results/q3_d_dset{dset_type}_train_plot.png')
+    show_samples(samples, f'results/q3_d_dset{dset_type}_samples.png')
 
 
 # Question 4
