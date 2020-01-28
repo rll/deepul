@@ -176,6 +176,7 @@ def q2_save_results(dset_type, part, fn):
                              f'results/q2_{part}_dset{dset_type}_learned_dist.png')
     elif part == 'b':
         train_losses, test_losses, samples = fn(train_data, test_data, img_shape, dset_type)
+        samples = samples.astype('float32') * 255
         print(f'Final Test Loss: {test_losses[-1]:.4f}')
         save_training_plot(train_losses, test_losses, f'Q2({part}) Dataset {dset_type} Train Plot',
                            f'results/q2_{part}_dset{dset_type}_train_plot.png')
