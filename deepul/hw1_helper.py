@@ -268,6 +268,7 @@ def q4ab_save_results(part, fn):
     train_data, test_data = load_pickled_data(join(data_dir, 'mnist_colored.pkl'))
     img_shape = (28, 28, 3)
     train_losses, test_losses, samples = fn(train_data, test_data, img_shape)
+    samples = samples.astype('float32') / 3 * 255
     print(f'Final Test Loss: {test_losses[-1]:.4f}')
     save_training_plot(train_losses, test_losses, f'Q4({part}) Train Plot',
                        f'results/q4_{part}_train_plot.png')
@@ -301,6 +302,7 @@ def q4d_save_results(q4_d):
     train_data, test_data = (train_data > 0.5).astype('uint8'), (test_data > 0.5).astype('uint8')
 
     train_losses, test_losses, samples = q4_d(train_data, test_data)
+    samples = samples.astype('float32') * 255
     print(f'Final Test Loss: {test_losses[-1]:.4f}')
     save_training_plot(train_losses, test_losses, f'Q4(d) Train Plot',
                        f'results/q4_d_train_plot.png')
