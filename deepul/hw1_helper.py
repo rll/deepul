@@ -195,6 +195,8 @@ def q3a_save_results(dset_type, q3_a):
         raise Exception()
 
     train_losses, test_losses, samples = q3_a(train_data, test_data, img_shape, dset_type)
+    samples = samples.astype('float32') * 255
+
     print(f'Final Test Loss: {test_losses[-1]:.4f}')
     save_training_plot(train_losses, test_losses, f'Q3(a) Dataset {dset_type} Train Plot',
                        f'results/q3_a_dset{dset_type}_train_plot.png')
@@ -251,6 +253,7 @@ def q3d_save_results(dset_type, q3_d):
         raise Exception('Invalid dset type:', dset_type)
 
     train_losses, test_losses, samples = q3_d(train_data, train_labels, test_data, test_labels, img_shape, n_classes, dset_type)
+    samples = samples.astype('float32') * 255
 
     print(f'Final Test Loss: {test_losses[-1]:.4f}')
     save_training_plot(train_losses, test_losses, f'Q3(d) Train Plot',
