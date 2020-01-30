@@ -3,3 +3,10 @@ __pycache__/
 .idea/
 deepul.egg-info/
 *.jpg
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+*.pdf
