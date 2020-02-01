@@ -263,7 +263,7 @@ def q3d_save_results(dset_type, q3_d):
 
 
 # Question 4
-def q4a_save_results(q4a):
+def q4a_save_results(q4_a):
     data_dir = get_data_dir(1)
     train_data, test_data = load_pickled_data(join(data_dir, 'mnist_colored.pkl'))
     img_shape = (28, 28, 3)
