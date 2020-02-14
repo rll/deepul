@@ -1,7 +1,21 @@
 from .utils import *
 from sklearn.datasets import make_moons
 
+class NumpyDataset(data.Dataset):
 
+    def __init__(self, array, transform=None):
+        super().__init__()
+        self.array = array
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.array)
+
+    def __getitem__(self, index):
+        x = self.array[index]
+        if self.transform:
+            x = self.transform(x)
+        return x
 
 def make_scatterplot(points, title=None, filename=None):
     plt.figure()
@@ -48,7 +62,7 @@ def visualize_q1_data(dset_type):
         train_data, train_labels, test_data, test_labels = q1_sample_data_2()
     else:
         raise Exception('Invalid dset_type:', dset_type)
-    fig, (ax1, ax2) = plt.subplots(1, 2)
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9.6, 4.8))
     ax1.set_title('Train Data')
     ax1.scatter(train_data[:, 0], train_data[:, 1], s=1, c=train_labels)
     ax1.set_xlabel('x0')
@@ -117,13 +131,12 @@ def q1_save_results(dset_type, part, fn):
     else:
         raise Exception('Invalid dset_type:', dset_type)
 
-    train_losses, test_losses, samples, heatmap, latents = fn(train_data, test_data, d, dset_type)
+    train_losses, test_losses, densities, latents = fn(train_data, test_data, d, dset_type)
 
     print(f'Final Test Loss: {test_losses[-1]:.4f}')
 
     save_training_plot(train_losses, test_losses, f'Q1({part}) Dataset {dset_type} Train Plot',
                        f'results/q1_{part}_dset{dset_type}_train_plot.png')
-    show_2d_samples(samples, f'results/q1_{part}_dset{dset_type}_samples.png')
     show_2d_densities(densities, dset_type, fname=f'results/q1_{part}_dset{dset_type}_densities.png')
     show_2d_latents(latents, f'results/q1_{part}_dset{dset_type}_latents.png')
 
