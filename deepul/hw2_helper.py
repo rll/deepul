@@ -131,14 +131,14 @@ def q1_save_results(dset_type, part, fn):
     else:
         raise Exception('Invalid dset_type:', dset_type)
 
-    train_losses, test_losses, densities, latents = fn(train_data, test_data, d, dset_type)
+    train_losses, test_losses, densities, latents = fn(train_data, test_data, dset_type)
 
     print(f'Final Test Loss: {test_losses[-1]:.4f}')
 
     save_training_plot(train_losses, test_losses, f'Q1({part}) Dataset {dset_type} Train Plot',
                        f'results/q1_{part}_dset{dset_type}_train_plot.png')
     show_2d_densities(densities, dset_type, fname=f'results/q1_{part}_dset{dset_type}_densities.png')
-    show_2d_latents(latents, f'results/q1_{part}_dset{dset_type}_latents.png')
+    show_2d_latents(latents, test_labels, f'results/q1_{part}_dset{dset_type}_latents.png')
 
 
 ######################
