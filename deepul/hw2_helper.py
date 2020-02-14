@@ -1,8 +1,6 @@
 from .utils import *
 from sklearn.datasets import make_moons
 
-
-
 def make_scatterplot(points, title=None, filename=None):
     plt.figure()
     plt.scatter(points[:, 0], points[:, 1], s=1)
@@ -48,15 +46,15 @@ def visualize_q1_data(dset_type):
         train_data, train_labels, test_data, test_labels = q1_sample_data_2()
     else:
         raise Exception('Invalid dset_type:', dset_type)
-    fig, (ax1, ax2) = plt.subplots(1, 2)
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9.6, 4.8))
     ax1.set_title('Train Data')
-    plt.scatter(train_data[:, 0], train_data[:, 1], s=1, c=train_labels)
-    ax1.set_xlabel('x0')
+    ax1.scatter(train_data[:, 0], train_data[:, 1], s=1, c=train_labels)
     ax1.set_xlabel('x1')
+    ax1.set_xlabel('x2')
     ax2.set_title('Test Data')
-    plt.scatter(test_data[:, 0], test_data[:, 1], s=1, c=test_labels)
-    ax1.set_xlabel('x0')
+    ax2.scatter(test_data[:, 0], test_data[:, 1], s=1, c=test_labels)
     ax1.set_xlabel('x1')
+    ax1.set_xlabel('x2')
     print(f'Dataset {dset_type}')
     plt.show()
 
@@ -64,8 +62,8 @@ def show_2d_samples(samples, fname=None, title='Samples'):
     plt.figure()
     plt.title(title)
     plt.scatter(samples[:, 0], samples[:, 1], s=1)
-    plt.xlabel('x0')
-    plt.ylabel('x1')
+    plt.xlabel('x1')
+    plt.ylabel('x2')
 
     if fname is not None:
         savefig(fname)
@@ -76,8 +74,8 @@ def show_2d_latents(latents, labels, fname=None, title='Latent Space'):
     plt.figure()
     plt.title(title)
     plt.scatter(latents[:, 0], latents[:, 1], s=1, c=labels)
-    plt.xlabel('z0')
-    plt.ylabel('z1')
+    plt.xlabel('z1')
+    plt.ylabel('z2')
 
     if fname is not None:
         savefig(fname)
@@ -102,8 +100,8 @@ def show_2d_densities(densities, dset_type, fname=None, title='Densities'):
     # densities = np.exp(ptu.get_numpy(self.log_prob(mesh_xs)))
     plt.pcolor(x, y, densities.reshape([y.shape[0], y.shape[1]]))
     plt.pcolor(x, y, densities.reshape([y.shape[0], y.shape[1]]))
-    plt.xlabel('z0')
-    plt.ylabel('z1')
+    plt.xlabel('z1')
+    plt.ylabel('z2')
     if fname is not None:
         savefig(fname)
     else:
@@ -117,17 +115,66 @@ def q1_save_results(dset_type, part, fn):
     else:
         raise Exception('Invalid dset_type:', dset_type)
 
-    train_losses, test_losses, samples, heatmap, latents = fn(train_data, test_data, d, dset_type)
+    train_losses, test_losses, densities, latents = fn(train_data, test_data, dset_type)
 
     print(f'Final Test Loss: {test_losses[-1]:.4f}')
 
     save_training_plot(train_losses, test_losses, f'Q1({part}) Dataset {dset_type} Train Plot',
                        f'results/q1_{part}_dset{dset_type}_train_plot.png')
-    show_2d_samples(samples, f'results/q1_{part}_dset{dset_type}_samples.png')
     show_2d_densities(densities, dset_type, fname=f'results/q1_{part}_dset{dset_type}_densities.png')
-    show_2d_latents(latents, f'results/q1_{part}_dset{dset_type}_latents.png')
+    show_2d_latents(latents, train_labels, f'results/q1_{part}_dset{dset_type}_latents.png')
 
 
 ######################
 ##### Question 2 #####
 ######################
+
+def visualize_q2_data():
+    data_dir = get_data_dir(2)
+    train_data, test_data = load_pickled_data(join(data_dir, 'shapes.pkl'))
+    name = 'Shape'
+
+    idxs = np.random.choice(len(train_data), replace=False, size=(100,))
+    images = train_data[idxs] * 255
+    show_samples(images, title=f'{name} Samples')
+
+def q2_save_results(fn):
+    data_dir = get_data_dir(2)
+    train_data, test_data = load_pickled_data(join(data_dir, 'shapes.pkl'))
+
+    train_losses, test_losses, samples = fn(train_data, test_data)
+    samples = np.clip(samples.astype('float') * 2.0, 0, 1.9999)
+    floored_samples = np.floor(samples)
+
+    print(f'Final Test Loss: {test_losses[-1]:.4f}')
+    save_training_plot(train_losses, test_losses, f'Q2 Dataset Train Plot',
+                       f'results/q2_train_plot.png')
+    show_samples(samples * 255.0 / 2.0, f'results/q2_samples.png')
+    show_samples(floored_samples * 255.0, f'results/q2_flooredsamples.png', title='Samples with Flooring')
+
+######################
+##### Question 3 #####
+######################
+
+def visualize_q3_data():
+    data_dir = get_data_dir(2)
+    train_data, test_data = load_pickled_data(join(data_dir, 'celeb.pkl'))
+    name = 'CelebA'
+
+    idxs = np.random.choice(len(train_data), replace=False, size=(100,))
+    images = train_data[idxs].astype(np.float32) / 3.0 * 255.0
+    show_samples(images, title=f'{name} Samples')
+
+def q3_save_results(fn, part):
+    data_dir = get_data_dir(2)
+    train_data, test_data = load_pickled_data(join(data_dir, 'celeb.pkl'))
+
+    train_losses, test_losses, samples, interpolations = fn(train_data, test_data)
+    samples = samples.astype('float')
+    interpolations = interpolations.astype('float')
+
+    print(f'Final Test Loss: {test_losses[-1]:.4f}')
+    save_training_plot(train_losses, test_losses, f'Q3 Dataset Train Plot',
+                       f'results/q3_{part}_train_plot.png')
+    show_samples(samples * 255.0, f'results/q3_{part}_samples.png')
+    show_samples(interpolations * 255.0, f'results/q3_{part}_interpolations.png', nrow=6, title='Interpolations')

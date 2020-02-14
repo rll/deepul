@@ -11,6 +11,7 @@ from torchvision.utils import make_grid
 def savefig(fname, show_figure=True):
     if not exists(dirname(fname)):
         os.makedirs(dirname(fname))
+    plt.tight_layout()
     plt.savefig(fname)
     if show_figure:
         plt.show()
@@ -82,7 +83,9 @@ def load_pickled_data(fname, include_labels=False):
         # Binarize MNIST and shapes dataset
         train_data = (train_data > 127.5).astype('uint8')
         test_data = (test_data > 127.5).astype('uint8')
-
+    if 'celeb.pkl' in fname:
+        train_data = train_data[:, :, :, [2, 1, 0]]
+        test_data = test_data[:, :, :, [2, 1, 0]]
     if include_labels:
         return train_data, test_data, data['train_labels'], data['test_labels']
     return train_data, test_data
