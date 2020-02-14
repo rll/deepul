@@ -1,22 +1,6 @@
 from .utils import *
 from sklearn.datasets import make_moons
 
-class NumpyDataset(torch.utils.data.Dataset):
-
-    def __init__(self, array, transform=None):
-        super().__init__()
-        self.array = array
-        self.transform = transform
-
-    def __len__(self):
-        return len(self.array)
-
-    def __getitem__(self, index):
-        x = self.array[index]
-        if self.transform:
-            x = self.transform(x)
-        return x
-
 def make_scatterplot(points, title=None, filename=None):
     plt.figure()
     plt.scatter(points[:, 0], points[:, 1], s=1)
