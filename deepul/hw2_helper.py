@@ -122,7 +122,7 @@ def q1_save_results(dset_type, part, fn):
     save_training_plot(train_losses, test_losses, f'Q1({part}) Dataset {dset_type} Train Plot',
                        f'results/q1_{part}_dset{dset_type}_train_plot.png')
     show_2d_densities(densities, dset_type, fname=f'results/q1_{part}_dset{dset_type}_densities.png')
-    show_2d_latents(latents, test_labels, f'results/q1_{part}_dset{dset_type}_latents.png')
+    show_2d_latents(latents, train_labels, f'results/q1_{part}_dset{dset_type}_latents.png')
 
 
 ######################
