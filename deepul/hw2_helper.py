@@ -1,7 +1,7 @@
 from .utils import *
 from sklearn.datasets import make_moons
 
-class NumpyDataset(data.Dataset):
+class NumpyDataset(torch.utils.data.Dataset):
 
     def __init__(self, array, transform=None):
         super().__init__()
