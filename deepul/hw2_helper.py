@@ -159,7 +159,7 @@ def q2_save_results(fn):
 def visualize_q3_data():
     data_dir = get_data_dir(2)
     train_data, test_data = load_pickled_data(join(data_dir, 'celeb.pkl'))
-    name = 'Shape'
+    name = 'CelebA'
 
     idxs = np.random.choice(len(train_data), replace=False, size=(100,))
     images = train_data[idxs].astype(np.float32) / 3.0 * 255.0

@@ -11,6 +11,7 @@ from torchvision.utils import make_grid
 def savefig(fname, show_figure=True):
     if not exists(dirname(fname)):
         os.makedirs(dirname(fname))
+    plt.tight_layout()
     plt.savefig(fname)
     if show_figure:
         plt.show()
