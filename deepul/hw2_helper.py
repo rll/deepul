@@ -162,7 +162,7 @@ def visualize_q3_data():
     name = 'Shape'
 
     idxs = np.random.choice(len(train_data), replace=False, size=(100,))
-    images = train_data[idxs].astype(np.float32) / 3.0
+    images = train_data[idxs].astype(np.float32) / 3.0 * 255.0
     show_samples(images, title=f'{name} Samples')
 
 def q3_save_results(fn, part):
