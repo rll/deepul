@@ -49,12 +49,12 @@ def visualize_q1_data(dset_type):
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9.6, 4.8))
     ax1.set_title('Train Data')
     ax1.scatter(train_data[:, 0], train_data[:, 1], s=1, c=train_labels)
-    ax1.set_xlabel('x0')
     ax1.set_xlabel('x1')
+    ax1.set_xlabel('x2')
     ax2.set_title('Test Data')
     ax2.scatter(test_data[:, 0], test_data[:, 1], s=1, c=test_labels)
-    ax1.set_xlabel('x0')
     ax1.set_xlabel('x1')
+    ax1.set_xlabel('x2')
     print(f'Dataset {dset_type}')
     plt.show()
 
@@ -62,8 +62,8 @@ def show_2d_samples(samples, fname=None, title='Samples'):
     plt.figure()
     plt.title(title)
     plt.scatter(samples[:, 0], samples[:, 1], s=1)
-    plt.xlabel('x0')
-    plt.ylabel('x1')
+    plt.xlabel('x1')
+    plt.ylabel('x2')
 
     if fname is not None:
         savefig(fname)
@@ -74,8 +74,8 @@ def show_2d_latents(latents, labels, fname=None, title='Latent Space'):
     plt.figure()
     plt.title(title)
     plt.scatter(latents[:, 0], latents[:, 1], s=1, c=labels)
-    plt.xlabel('z0')
-    plt.ylabel('z1')
+    plt.xlabel('z1')
+    plt.ylabel('z2')
 
     if fname is not None:
         savefig(fname)
@@ -100,8 +100,8 @@ def show_2d_densities(densities, dset_type, fname=None, title='Densities'):
     # densities = np.exp(ptu.get_numpy(self.log_prob(mesh_xs)))
     plt.pcolor(x, y, densities.reshape([y.shape[0], y.shape[1]]))
     plt.pcolor(x, y, densities.reshape([y.shape[0], y.shape[1]]))
-    plt.xlabel('z0')
-    plt.ylabel('z1')
+    plt.xlabel('z1')
+    plt.ylabel('z2')
     if fname is not None:
         savefig(fname)
     else:
@@ -128,3 +128,14 @@ def q1_save_results(dset_type, part, fn):
 ######################
 ##### Question 2 #####
 ######################
+
+def visualize_q2_data(return_data=False):
+    data_dir = get_data_dir(1)
+    train_data, test_data = load_pickled_data(join(data_dir, 'shapes.pkl'))
+    name = 'Shape'
+
+    idxs = np.random.choice(len(train_data), replace=False, size=(100,))
+    images = train_data[idxs] * 255
+    show_samples(images, title=f'{name} Samples')
+    if return_data:
+        return train_data
