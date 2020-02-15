@@ -1,4 +1,4 @@
-# Homework 1: Autoregressive Models
+# Homework 2: Flow Models
 
 **Due February 25, 11:59pm on Gradescope**
 

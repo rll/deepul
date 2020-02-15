@@ -171,6 +171,7 @@ def q3_save_results(fn, part):
 
     train_losses, test_losses, samples, interpolations = fn(train_data, test_data)
     samples = samples.astype('float')
+    interpolations = interpolations.astype('float')
 
     print(f'Final Test Loss: {test_losses[-1]:.4f}')
     save_training_plot(train_losses, test_losses, f'Q3 Dataset Train Plot',
