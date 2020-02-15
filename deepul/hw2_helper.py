@@ -139,3 +139,19 @@ def visualize_q2_data(return_data=False):
     show_samples(images, title=f'{name} Samples')
     if return_data:
         return train_data
+
+def q2_save_results(fn):
+    data_dir = get_data_dir(1)
+    train_data, test_data = load_pickled_data(join(data_dir, 'shapes.pkl'))
+    img_shape = (20, 20)
+
+    train_losses, test_losses, samples = fn(train_data, test_data, img_shape)
+    samples = samples.astype('float') * 2.0
+    floored_samples = np.floor(samples)
+
+    print(f'Final Test Loss: {test_losses[-1]:.4f}')
+    save_training_plot(train_losses, test_losses, f'Q2 Dataset Train Plot',
+                       f'results/q2_train_plot.png')
+    show_samples(samples * 255.0 / 2.0, f'results/q2_samples.png')
+    show_samples(floored_samples * 255.0, f'results/q2_flooredsamples.png')
+
