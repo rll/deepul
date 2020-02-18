@@ -32,6 +32,13 @@ def save_training_plot(train_losses, test_losses, title, fname):
     savefig(fname)
 
 
+def save_scatter_2d(data, title, fname):
+    plt.figure()
+    plt.title(title)
+    plt.scatter(data[:, 0], data[:, 1])
+    savefig(fname)
+
+
 def save_distribution_1d(data, distribution, title, fname):
     d = len(distribution)
 
