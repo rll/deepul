@@ -116,9 +116,9 @@ def q2_save_results(part, dset_id, fn):
     assert part in ['a', 'b'] and dset_id in [1, 2]
     data_dir = get_data_dir(3)
     if dset_id == 1:
-        train_data, test_data = load_pickled_data(join(data_dir, 'shapes_colored.pkl'))
-    else:
         train_data, test_data = load_pickled_data(join(data_dir, 'svhn.pkl'))
+    else:
+        train_data, test_data = load_pickled_data(join(data_dir, 'cifar10.pkl'))
 
     train_losses, test_losses, samples, reconstructions, interpolations = fn(train_data, test_data, dset_id)
     samples, reconstructions, interpolations = samples.astype('float32'), reconstructions.astype('float32'), interpolations.astype('float32')
@@ -138,7 +138,7 @@ def q3_save_results(dset_id, fn):
     assert dset_id in [1, 2]
     data_dir = get_data_dir(3)
     if dset_id == 1:
-        train_data, test_data, train_labels, test_labels = load_pickled_data(join(data_dir, 'shapes_colored.pkl'), include_labels=True)
+        train_data, test_data, train_labels, test_labels = load_pickled_data(join(data_dir, 'svhn.pkl'), include_labels=True)
         n_classes = 4
     else:
         train_data, test_data, train_labels, test_labels = load_pickled_data(join(data_dir, 'cifar10.pkl'), include_labels=True)
