@@ -104,6 +104,14 @@ def visualize_svhn():
     show_samples(images, title='SVHN Samples')
 
 
+def visualize_cifar10():
+    data_dir = get_data_dir(3)
+    train_data, test_data = load_pickled_data(join(data_dir, 'cifar10.pkl'))
+    idxs = np.random.choice(len(train_data), replace=False, size=(100,))
+    images = train_data[idxs]
+    show_samples(images, title='CIFAR10 Samples')
+
+
 def q2_save_results(part, dset_id, fn):
     assert part in ['a', 'b'] and dset_id in [1, 2]
     data_dir = get_data_dir(3)
