@@ -139,10 +139,12 @@ def q3_save_results(dset_id, fn):
     data_dir = get_data_dir(3)
     if dset_id == 1:
         train_data, test_data, train_labels, test_labels = load_pickled_data(join(data_dir, 'shapes_colored.pkl'), include_labels=True)
+        n_classes = 4
     else:
         train_data, test_data, train_labels, test_labels = load_pickled_data(join(data_dir, 'cifar10.pkl'), include_labels=True)
+        n_classes = 10
 
-    vqvae_train_losses, vqvae_test_losses, pixelcnn_train_losses, pixelcnn_test_losses, samples, reconstructions = fn(train_data, test_data, dset_id)
+    vqvae_train_losses, vqvae_test_losses, pixelcnn_train_losses, pixelcnn_test_losses, samples, reconstructions = fn(train_data, train_labels, test_data, test_labels, n_classes, dset_id)
     samples, reconstructions = samples.astype('float32'), reconstructions.astype('float32')
     print(f'VQ-VAE Final Test Loss: {vqvae_test_losses[-1]:.4f}')
     print(f'PixelCNN Prior Final Test Loss: {pixelcnn_test_losses[-1]:.4f}')
