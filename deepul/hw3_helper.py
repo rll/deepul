@@ -184,7 +184,7 @@ def q4_b_save_results(fn):
     train_data, test_data = load_pickled_data(join(data_dir, 'mnist.pkl'))
 
     train_losses, test_losses, samples, reconstructions = fn(train_data, test_data)
-    samples, reconstructions = samples.astype('float32'), reconstructions.astype('float32')
+    samples, reconstructions = samples.astype('float32') * 255, reconstructions.astype('float32') * 255
     print(f'Final -ELBO: {test_losses[-1, 0]:.4f}, Recon Loss: {test_losses[-1, 1]:.4f}, '
           f'KL Loss: {test_losses[-1, 2]:.4f}')
     plot_vae_training_plot(train_losses, test_losses, f'Q4({part}) Train Plot',
