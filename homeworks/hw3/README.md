@@ -11,3 +11,5 @@ Open it on Colab by clicking on the file, and then "Open in Colab" at the top.
 **Submit the Latex PDF in the assignment with (PDF)**
 
 You can open the notebook in Google Colab to get access to a free GPU, or you can link Colab to a local runtime to run it on your own GPU.  
+
+**Note that for this homework, the data files are not in the git repo. If you would like to download them, you can use this [link](https://drive.google.com/open?id=1lWjGICwgzgcBDejo9S5g69hLAf0O3lGF)
