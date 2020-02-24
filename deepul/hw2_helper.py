@@ -165,6 +165,12 @@ def visualize_q3_data():
     images = train_data[idxs].astype(np.float32) / 3.0 * 255.0
     show_samples(images, title=f'{name} Samples')
 
+def get_q3_data():
+    data_dir = get_data_dir(2)
+    train_data, test_data = load_pickled_data(join(data_dir, 'celeb.pkl'))
+    return train_data, test_data
+
+
 def q3_save_results(fn, part):
     data_dir = get_data_dir(2)
     train_data, test_data = load_pickled_data(join(data_dir, 'celeb.pkl'))
