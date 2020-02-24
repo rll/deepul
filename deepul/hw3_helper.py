@@ -175,7 +175,7 @@ def q4_a_save_results(dset_id, fn):
     show_samples(samples, title=f'Q4(a) Dataset {dset_id} Samples',
                  fname=f'results/q4_a_dset{dset_id}_samples.png')
     show_samples(reconstructions, title=f'Q4(a) Dataset {dset_id} Reconstructions',
-                 fname=f'results/q4_a__dset{dset_id}_reconstructions.png')
+                 fname=f'results/q4_a_dset{dset_id}_reconstructions.png')
 
 
 def q4_b_save_results(fn):
