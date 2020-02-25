@@ -7,7 +7,7 @@ In this homework, you will implement and train a variety of different latent var
 You will submit the notebook to Gradescope after completing the homework. 
 Open it on Colab by clicking on the file, and then "Open in Colab" at the top. 
 **Submit a PDF version of the notebook to the code (Print -> Preview -> Save) on Gradescope in the assignment with (code)**
-* `hw3_latex` :  Contains LaTeX files and figures needed to generate your PDF submission to Gradescope. Copy the images saved from the notebook into the `figures/` folder.
+* `hw3_latex` :  Contains LaTeX files and figures needed to generate your PDF submission to Gradescope. Copy the images saved from the notebook into the `figures/` folder and fill out the test losses.
 **Submit the Latex PDF in the assignment with (PDF)**
 
 You can open the notebook in Google Colab to get access to a free GPU, or you can link Colab to a local runtime to run it on your own GPU.  
