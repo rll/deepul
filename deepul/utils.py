@@ -100,3 +100,8 @@ def load_pickled_data(fname, include_labels=False):
 
 def get_data_dir(hw_number):
     return join('deepul', 'homeworks', f'hw{hw_number}', 'data')
+
+
+def quantize(images, n_bits):
+    images = np.floor(images / 256. * 2 ** n_bits)
+    return images.astype('uint8')
