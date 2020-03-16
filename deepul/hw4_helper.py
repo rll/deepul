@@ -1,9 +1,21 @@
 import numpy as np
+import torch.nn as nn
+import torch.utils.data
 import torchvision
-import torchvision.transforms as transforms
-
+from torchvision import transforms as transforms
 from .utils import *
+from .hw4_utils.hw4_models import GoogLeNet
 
+
+CLASSES = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
+
+import numpy as np
+import math
+import sys
+
+softmax = None
+model = None
+device = torch.device("cuda:0")
 
 def plot_gan_training(losses, title, fname):
     plt.figure()
@@ -63,8 +75,43 @@ def q1_save_results(part, fn):
 ######################
 
 def calculate_is(samples):
-    print('Inception score module missing -- check back in 24 hours. ')
-    return 0
+    print("Inception score of real images from CIFAR-10: 9.97 out of max of 10")
+
+    model = GoogLeNet().to(device)
+    model.load_state_dict(torch.load("deepul/deepul/hw4_utils/classifier.pt"))
+    softmax = nn.Sequential(model, nn.Softmax(dim=1))
+
+    splits = 1
+    bs = 100
+    images = [samples[i] for i in range(len(samples))]
+
+    assert (type(images[0]) == np.ndarray)
+    assert (len(images[0].shape) == 3)
+    softmax.eval()
+    inps = []
+
+    for img in images:
+        img = img.astype(np.float32)
+        inps.append(np.expand_dims(img, 0))
+
+    with torch.no_grad():
+        preds = []
+        n_batches = int(math.ceil(float(len(inps)) / float(bs)))
+        for i in range(n_batches):
+            sys.stdout.write(".")
+            sys.stdout.flush()
+            inp = inps[(i * bs):min((i + 1) * bs, len(inps))]
+            inp = torch.tensor(np.concatenate(inp, 0), requires_grad=False).to(device)
+            pred = softmax(inp).detach().cpu().numpy()
+            preds.append(pred)
+        preds = np.concatenate(preds, 0)
+    scores = []
+    for i in range(splits):
+        part = preds[(i * preds.shape[0] // splits):((i + 1) * preds.shape[0] // splits), :]
+        kl = part * (np.log(part) - np.log(np.expand_dims(np.mean(part, 0), 0)))
+        kl = np.mean(np.sum(kl, 1))
+        scores.append(np.exp(kl))
+    return np.mean(scores)
 
 def load_q2_data():
     train_data = torchvision.datasets.CIFAR10("./data", transform=torchvision.transforms.ToTensor(),
@@ -81,7 +128,7 @@ def q2_save_results(fn):
     train_data = train_data.data.transpose((0, 3, 1, 2)) / 255.0
     train_losses, samples = fn(train_data)
 
-    print("Inception score:", calculate_is(samples))
+    print("Inception score:", calculate_is(samples.transpose([0, 3, 1, 2])))
     plot_gan_training(train_losses, 'Q2 Losses', 'results/q2_losses.png')
     show_samples(samples[:100] * 255.0, fname='results/q2_samples.png', title=f'CIFAR-10 generated samples')
 
