@@ -5,7 +5,10 @@ import torchvision
 from torchvision import transforms as transforms
 from .utils import *
 from .hw4_utils.hw4_models import GoogLeNet
-
+from PIL import Image as PILImage
+import scipy.ndimage
+import cv2
+from tensorflow.examples.tutorials.mnist import input_data
 
 CLASSES = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
 
@@ -175,11 +178,62 @@ def q3_save_results(fn):
 ##### Question 4 #####
 ######################
 
+def load_mnist():
+    data = input_data.read_data_sets("mnist", one_hot=True).train.images
+    return data.reshape(-1, 28, 28, 1).astype(np.float32)
+
+def get_colored_mnist(data):
+    # modified from https://www.wouterbulten.nl/blog/tech/getting-started-with-gans-2-colorful-mnist/
+    # Read Lena image
+    lena = PILImage.open('deepul/deepul/hw4_utils/lena.jpg')
+
+    # Resize
+    batch_resized = np.asarray([scipy.ndimage.zoom(image, (2.3, 2.3, 1), order=1) for image in data])
+
+    # Extend to RGB
+    batch_rgb = np.concatenate([batch_resized, batch_resized, batch_resized], axis=3)
+
+    # Make binary
+    batch_binary = (batch_rgb > 0.5)
+
+    batch = np.zeros((data.shape[0], 28, 28, 3))
+
+    for i in range(data.shape[0]):
+        # Take a random crop of the Lena image (background)
+        x_c = np.random.randint(0, lena.size[0] - 64)
+        y_c = np.random.randint(0, lena.size[1] - 64)
+        image = lena.crop((x_c, y_c, x_c + 64, y_c + 64))
+        image = np.asarray(image) / 255.0
+
+        # Invert the colors at the location of the number
+        image[batch_binary[i]] = 1 - image[batch_binary[i]]
+
+        batch[i] = cv2.resize(image, (0, 0), fx=28 / 64, fy=28 / 64, interpolation=cv2.INTER_AREA)
+    return batch.transpose(0, 3, 1, 2)
+
 def load_q4_data():
-    pass
+    mnist = load_mnist()
+    colored_mnist = get_colored_mnist(mnist)
+    return mnist.transpose(0, 3, 1, 2), colored_mnist
 
 def visualize_cyclegan_datasets():
-    pass
+    mnist, colored_mnist = load_q4_data()
+    mnist, colored_mnist = mnist[:100], colored_mnist[:100]
+    show_samples(mnist.reshape([100, 28, 28, 1]) * 255.0, title=f'MNIST samples')
+    show_samples(colored_mnist.transpose([0, 2, 3, 1]) * 255.0, title=f'Colored MNIST samples')
 
 def q4_save_results(fn):
+    mnist, cmnist = load_q4_data()
+
+    m1, c1, m2, c2, m3, c3 = fn(mnist, cmnist)
+    m1, m2, m3 = m1.repeat(3, axis=3), m2.repeat(3, axis=3), m3.repeat(3, axis=3)
+    mnist_reconstructions = np.concatenate([m1, c1, m2], axis=0)
+    colored_mnist_reconstructions = np.concatenate([c2, m3, c3], axis=0)
+
+    show_samples(mnist_reconstructions * 255.0, nrow=20,
+                 fname='figures/q4_mnist.png',
+                 title=f'Source domain: MNIST')
+    show_samples(colored_mnist_reconstructions * 255.0, nrow=20,
+                 fname='figures/q4_colored_mnist.png',
+                 title=f'Source domain: Colored MNIST')
     pass
