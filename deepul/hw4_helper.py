@@ -8,7 +8,6 @@ from .hw4_utils.hw4_models import GoogLeNet
 from PIL import Image as PILImage
 import scipy.ndimage
 import cv2
-from tensorflow.examples.tutorials.mnist import input_data
 
 CLASSES = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
 
@@ -178,12 +177,8 @@ def q3_save_results(fn):
 ##### Question 4 #####
 ######################
 
-def load_mnist():
-    data = input_data.read_data_sets("mnist", one_hot=True).train.images
-    return data.reshape(-1, 28, 28, 1).astype(np.float32)
-
 def get_colored_mnist(data):
-    # modified from https://www.wouterbulten.nl/blog/tech/getting-started-with-gans-2-colorful-mnist/
+    # from https://www.wouterbulten.nl/blog/tech/getting-started-with-gans-2-colorful-mnist/
     # Read Lena image
     lena = PILImage.open('deepul/deepul/hw4_utils/lena.jpg')
 
@@ -212,7 +207,8 @@ def get_colored_mnist(data):
     return batch.transpose(0, 3, 1, 2)
 
 def load_q4_data():
-    mnist = load_mnist()
+    train, _ = load_q3_data()
+    mnist = np.array(train.data.reshape(-1, 28, 28, 1) / 255.0)
     colored_mnist = get_colored_mnist(mnist)
     return mnist.transpose(0, 3, 1, 2), colored_mnist
 
@@ -237,3 +233,4 @@ def q4_save_results(fn):
                  fname='figures/q4_colored_mnist.png',
                  title=f'Source domain: Colored MNIST')
     pass
+
