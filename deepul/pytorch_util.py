@@ -70,7 +70,7 @@ def set_device(gpu_id):
 def FloatTensor(*args, torch_device=None, **kwargs):
     if torch_device is None:
         torch_device = device
-    return torch.FloatTensor(*args, **kwargs, device=torch_device)
+    return torch.FloatTensor(*args, **kwargs).to(torch_device)
 
 
 def from_numpy(*args, **kwargs):
