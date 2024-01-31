@@ -220,8 +220,18 @@ def q3ab_save_results(dset_type, part, fn):
 
 def q3c_save_results(dset_type, fn):
     data_dir = get_data_dir(1)
-    train_data, test_data = load_pickled_data(join(data_dir, "shapes_colored.pkl"))
-    img_shape = (20, 20, 3)
+    if dset_type == 1:
+        train_data, test_data = load_pickled_data(
+            join(data_dir, f"shapes_colored.pkl")
+        )
+        img_shape = (20, 20, 3)
+    elif dset_type == 2:
+        train_data, test_data = load_pickled_data(
+            join(data_dir, f"mnist_colored.pkl")
+        )
+        img_shape = (28, 28, 3)
+    else:
+        raise Exception()
 
     (
         time_list_no_cache,
@@ -250,11 +260,11 @@ def q3c_save_results(dset_type, fn):
 
 
 # load vqvae mode
-def load_pretrain_vqvae():
+def load_pretrain_vqvae(name: str):
     data_dir = get_data_dir(1)
-    loaded_args = torch.load(join(data_dir, "vqvae_args" + ".pth"))
+    loaded_args = torch.load(join(data_dir, f"vqvae_args_{name}_ft" + ".pth"))
     vqvae = VQVAE(**loaded_args)
-    vqvae.load_state_dict(torch.load(join(data_dir, "vqvae_weights" + ".pth")))
+    vqvae.load_state_dict(torch.load(join(data_dir, f"vqvae_{name}_ft" + ".pth")))
     return vqvae
 
 
@@ -264,17 +274,19 @@ def q4a_save_results(dset_type, fn):
         #  @ load colored mnist
         train_data, _ = load_pickled_data(join(data_dir, "mnist_colored.pkl"))
         img_shape = (28, 28, 3)
+        vqvae = load_pretrain_vqvae("colored_mnist")
     elif dset_type == 2:
         train_data, _, _, _ = load_colored_mnist_text(
             join(data_dir, "colored_mnist_with_text.pkl")
         )
         img_shape = (28, 28, 3)
+        vqvae = load_pretrain_vqvae("colored_mnist_2")
     else:
         raise Exception()
 
     # get two images
     images = train_data[:2]
-    post_decoded_images = fn(images)
+    post_decoded_images = fn(images, vqvae)
     stacked_images = np.concatenate([images, post_decoded_images], axis=0)
 
     vq_images = stacked_images.astype("float32") / 3 * 255
@@ -287,15 +299,17 @@ def q4b_save_results(dset_type, fn):
         #  @ load colored mnist
         train_data, test_data = load_pickled_data(join(data_dir, "mnist_colored.pkl"))
         img_shape = (28, 28, 3)
+        vqvae = load_pretrain_vqvae("colored_mnist")
     elif dset_type == 2:
         train_data, test_data, _, _ = load_colored_mnist_text(
             join(data_dir, "colored_mnist_with_text.pkl")
         )
         img_shape = (28, 28, 3)
+        vqvae = load_pretrain_vqvae("colored_mnist_2")
     else:
         raise Exception()
 
-    train_losses, test_losses, samples = fn(train_data, test_data, img_shape, dset_type)
+    train_losses, test_losses, samples = fn(train_data, test_data, img_shape, dset_type, vqvae)
 
     # decode? TODO
     samples = samples.astype("float32") / 3 * 255
@@ -402,6 +416,7 @@ def q6a_save_results(fn):
     train_data, test_data, train_labels, test_labels = load_colored_mnist_text(
         join(data_dir, "colored_mnist_with_text.pkl")
     )
+    vqvae = load_pretrain_vqvae("colored_mnist_2")
     img_shape = (28, 28, 3)
     # extract out the images only
     img_test_prompt = test_data[:9]  # get first 9 samples
@@ -420,6 +435,7 @@ def q6a_save_results(fn):
         test_labels,
         img_test_prompt,
         text_test_prompt,
+        vqvae,
     )
 
     print(f"Final Test Loss: {test_losses[-1]:.4f}")
