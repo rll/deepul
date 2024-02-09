@@ -89,7 +89,7 @@ def q1_save_results(part, dset_id, fn):
 
 
 def visualize_colored_shapes():
-    data_dir = get_data_dir(3)
+    data_dir = get_data_dir(2)
     train_data, test_data = load_pickled_data(join(data_dir, 'shapes_colored.pkl'))
     idxs = np.random.choice(len(train_data), replace=False, size=(100,))
     images = train_data[idxs]
@@ -97,7 +97,7 @@ def visualize_colored_shapes():
 
 
 def visualize_svhn():
-    data_dir = get_data_dir(3)
+    data_dir = get_data_dir(2)
     train_data, test_data = load_pickled_data(join(data_dir, 'svhn.pkl'))
     idxs = np.random.choice(len(train_data), replace=False, size=(100,))
     images = train_data[idxs]
@@ -105,7 +105,7 @@ def visualize_svhn():
 
 
 def visualize_cifar10():
-    data_dir = get_data_dir(3)
+    data_dir = get_data_dir(2)
     train_data, test_data = load_pickled_data(join(data_dir, 'cifar10.pkl'))
     idxs = np.random.choice(len(train_data), replace=False, size=(100,))
     images = train_data[idxs]
@@ -114,7 +114,7 @@ def visualize_cifar10():
 
 def q2_save_results(part, dset_id, fn):
     assert part in ['a', 'b'] and dset_id in [1, 2]
-    data_dir = get_data_dir(3)
+    data_dir = get_data_dir(2)
     if dset_id == 1:
         train_data, test_data = load_pickled_data(join(data_dir, 'svhn.pkl'))
     else:
@@ -136,7 +136,7 @@ def q2_save_results(part, dset_id, fn):
 
 def q3_save_results(dset_id, fn):
     assert dset_id in [1, 2]
-    data_dir = get_data_dir(3)
+    data_dir = get_data_dir(2)
     if dset_id == 1:
         train_data, test_data = load_pickled_data(join(data_dir, 'svhn.pkl'))
     else:
