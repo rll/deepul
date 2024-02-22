@@ -80,7 +80,7 @@ def calculate_is(samples):
     assert (len(samples[0].shape) == 3)
 
     model = GoogLeNet().to(ptu.device)
-    model.load_state_dict(torch.load("deepul/deepul/hw4_utils/classifier.pt"))
+    model.load_state_dict(torch.load("deepul/deepul/hw3_utils/classifier.pt"))
     softmax = nn.Sequential(model, nn.Softmax(dim=1))
 
     bs = 100
