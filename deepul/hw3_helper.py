@@ -47,7 +47,7 @@ def q1_gan_plot(data, samples, xs, ys, title, fname):
 
 def q1_data(n=20000):
     assert n % 2 == 0
-    gaussian1 = np.random.normal(loc=-1.5, scale=0.22, size=(n//2,))
+    gaussian1 = np.random.normal(loc=-1.5, scale=0.35, size=(n//2,))
     gaussian2 = np.random.normal(loc=0.2, scale=0.6, size=(n//2,))
     data = (np.concatenate([gaussian1, gaussian2]) + 1).reshape([-1, 1])
     scaled_data = (data - np.min(data)) / (np.max(data) - np.min(data) + 1e-8)
@@ -160,16 +160,14 @@ def save_plot(
 
 def q3_save_results(fn, part):
     train_data, test_data = load_q3_data()
-    gan_losses, optional_lpips_losses, l2_train_losses, l2_val_losses, recon_show, recon_is = fn(train_data, test_data, test_data[:100])
+    gan_losses, lpips_losses, l2_train_losses, l2_val_losses, recon_show = fn(train_data, test_data, test_data[:100])
 
-    plot_gan_training(gan_losses, f'Q3{part} Losses', f'results/q3{part}_gan_losses.png')
+    plot_gan_training(gan_losses, f'Q3{part} Discriminator Losses', f'results/q3{part}_gan_losses.png')
     save_plot(l2_train_losses, l2_val_losses, f'Q3{part} L2 Losses', f'results/q3{part}_l2_losses.png')
-    if optional_lpips_losses is not None:
-        save_plot(optional_lpips_losses, None, f'Q3{part} LPIPS Losses', f'results/q3{part}_lpips_losses.png')
+    save_plot(lpips_losses, None, f'Q3{part} LPIPS Losses', f'results/q3{part}_lpips_losses.png')
     show_samples(test_data[:100].transpose(0, 2, 3, 1) * 255.0, nrow=20, fname=f'results/q3{part}_data_samples.png', title=f'Q3{part} CIFAR10 val samples')
     show_samples(recon_show * 255.0, nrow=20, fname=f'results/q3{part}_reconstructions.png', title=f'Q3{part} VQGAN reconstructions')
-    print('inception score:', calculate_is(recon_is.transpose([0, 2, 3, 1])))
-    print('final_reconstruction_loss:', l2_val_losses[-1])
+    print('final_val_reconstruction_loss:', l2_val_losses[-1])
 
 ######################
 ##### Question 4 #####
@@ -178,7 +176,7 @@ def q3_save_results(fn, part):
 def get_colored_mnist(data):
     # from https://www.wouterbulten.nl/blog/tech/getting-started-with-gans-2-colorful-mnist/
     # Read Lena image
-    lena = PILImage.open('deepul/deepul/hw4_utils/lena.jpg')
+    lena = PILImage.open('deepul/deepul/hw3_utils/lena.jpg')
 
     # Resize
     batch_resized = np.asarray([scipy.ndimage.zoom(image, (2.3, 2.3, 1), order=1) for image in data])
