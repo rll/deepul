@@ -202,8 +202,17 @@ def get_colored_mnist(data):
         batch[i] = cv2.resize(image, (0, 0), fx=28 / 64, fy=28 / 64, interpolation=cv2.INTER_AREA)
     return batch.transpose(0, 3, 1, 2)
 
+def _load_q4_data():
+    transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize((0.5,), (0.5,))
+    ])
+    train_data = torchvision.datasets.MNIST(root="./data", train=True, download=True, transform=transform)
+    test_data = torchvision.datasets.MNIST(root="./data", train=False, download=True, transform=transform)
+    return train_data, test_data
+
 def load_q4_data():
-    train, _ = load_q3_data()
+    train, _ = _load_q4_data()
     mnist = np.array(train.data.reshape(-1, 28, 28, 1) / 255.0)
     colored_mnist = get_colored_mnist(mnist)
     return mnist.transpose(0, 3, 1, 2), colored_mnist
