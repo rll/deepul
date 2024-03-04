@@ -160,7 +160,7 @@ def q3c_save_results(fn):
     vae = load_pretrain_vae()
     samples = fn(vae)
     
-    cfg_values = [1.0, 3.0, 7.5, 12.0]
+    cfg_values = [1.0, 3.0, 5.0, 7.5]
     for i in range(4):
         cfg_val = cfg_values[i]
         s = samples[i]
