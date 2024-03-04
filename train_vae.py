@@ -12,6 +12,47 @@ import deepul.pytorch_util as ptu
 ptu.set_gpu_mode(True)
 
 
+class DiagonalGaussianDistribution(object):
+    def __init__(self, parameters, deterministic=False):
+        self.parameters = parameters
+        self.mean, self.logvar = torch.chunk(parameters, 2, dim=1)
+        self.logvar = torch.clamp(self.logvar, -30.0, 20.0)
+        self.deterministic = deterministic
+        self.std = torch.exp(0.5 * self.logvar)
+        self.var = torch.exp(self.logvar)
+        if self.deterministic:
+            self.var = self.std = torch.zeros_like(self.mean).to(device=self.parameters.device)
+
+    def sample(self):
+        x = self.mean + self.std * torch.randn(self.mean.shape).to(device=self.parameters.device)
+        return x
+
+    def kl(self, other=None):
+        if self.deterministic:
+            return torch.Tensor([0.])
+        else:
+            if other is None:
+                return 0.5 * torch.sum(torch.pow(self.mean, 2)
+                                       + self.var - 1.0 - self.logvar,
+                                       dim=[1, 2, 3])
+            else:
+                return 0.5 * torch.sum(
+                    torch.pow(self.mean - other.mean, 2) / other.var
+                    + self.var / other.var - 1.0 - self.logvar + other.logvar,
+                    dim=[1, 2, 3])
+
+    def nll(self, sample, dims=[1,2,3]):
+        if self.deterministic:
+            return torch.Tensor([0.])
+        logtwopi = np.log(2.0 * np.pi)
+        return 0.5 * torch.sum(
+            logtwopi + self.logvar + torch.pow(sample - self.mean, 2) / self.var,
+            dim=dims)
+
+    def mode(self):
+        return self.mean
+
+
 def extract_patches_d(inputs: torch.Tensor, patch_size: int) -> torch.Tensor:
     inputs = inputs.permute(0, 2, 3, 1)
     B, H, W, C = inputs.shape
@@ -146,67 +187,59 @@ class Quantize(nn.Module):
         return quantized, (quantized - z).detach() + z, encoding_indices
 
 
-class VectorQuantizedVAE(nn.Module):
-    def __init__(self, code_size, use_vit=False):
+class VAE(nn.Module):
+    def __init__(self, latent_dim=4):
         super().__init__()
-        self.code_size = code_size
-        if use_vit:
-            self.encoder = ViTEncoder(4, 256, 64)
-        else:
-            self.encoder = nn.Sequential(
-                nn.Conv2d(3, 256, 4, stride=2, padding=1),
-                nn.ReLU(),
-                nn.BatchNorm2d(256),
-                nn.Conv2d(256, 256, 4, stride=2, padding=1),
-                ResidualBlock(256),
-                ResidualBlock(256),
-            )
+        self.latent_dim = latent_dim
+        self.encoder = nn.Sequential(
+            nn.Conv2d(3, 256, 4, stride=2, padding=1),
+            nn.ReLU(),
+            nn.BatchNorm2d(256),
+            nn.Conv2d(256, 256, 4, stride=2, padding=1),
+            ResidualBlock(256),
+            ResidualBlock(256),
+        )
+        self.pre_quant = nn.Conv2d(256, 2 * latent_dim, 1)
+        self.post_quant = nn.Conv2d(latent_dim, 256, 1)
 
-        self.codebook = Quantize(code_size, 256)
+        self.decoder = nn.Sequential(
+            ResidualBlock(256),
+            ResidualBlock(256),
+            nn.ReLU(),
+            nn.BatchNorm2d(256),
+            nn.ConvTranspose2d(256, 256, 4, stride=2, padding=1),
+            nn.ReLU(),
+            nn.BatchNorm2d(256),
+            nn.ConvTranspose2d(256, 3, 4, stride=2, padding=1),
+            nn.Tanh(),
+        )
 
-        if use_vit:
-            self.decoder = ViTDecoder(4, 256, 64)
-        else:
-            self.decoder = nn.Sequential(
-                ResidualBlock(256),
-                ResidualBlock(256),
-                nn.ReLU(),
-                nn.BatchNorm2d(256),
-                nn.ConvTranspose2d(256, 256, 4, stride=2, padding=1),
-                nn.ReLU(),
-                nn.BatchNorm2d(256),
-                nn.ConvTranspose2d(256, 3, 4, stride=2, padding=1),
-                nn.Tanh(),
-            )
+    def encode(self, x, return_dist=False):
+        h = self.encoder(x)
+        moments = self.pre_quant(h)
+        posterior = DiagonalGaussianDistribution(moments)
+        if return_dist:
+            return posterior
+        return posterior.sample()
 
-    def encode_code(self, x):
-        with torch.no_grad():
-            x = 2 * x - 1
-            z = self.encoder(x)
-            indices = self.codebook(z)[2]
-            return indices
-
-    def decode_code(self, latents):
-        with torch.no_grad():
-            latents = self.codebook.embedding(latents).permute(0, 3, 1, 2).contiguous()
-            return self.decoder(latents).permute(0, 2, 3, 1).cpu().numpy() * 0.5 + 0.5
+    def decode(self, z):
+        return self.decoder(self.post_quant(z))
 
     def forward(self, x):
-        z = self.encoder(x)
-        e, e_st, _ = self.codebook(z)
-        print(e_st.shape)
-        x_tilde = self.decoder(e_st)
+        posterior = self.encode(x, return_dist=True)
+        z = posterior.sample()
+        x_tilde = self.decode(z)
 
-        diff1 = torch.mean((z - e.detach()) ** 2)
-        diff2 = torch.mean((e - z.detach()) ** 2)
-        return x_tilde, diff1 + diff2
+        kl_loss = posterior.kl()
+        kl_loss = torch.sum(kl_loss) / kl_loss.shape[0]
+        return x_tilde, kl_loss
 
     def loss(self, x):
         x = 2 * x - 1
-        x_tilde, diff = self(x)
+        x_tilde, kl_loss = self(x)
         recon_loss = F.mse_loss(x_tilde, x)
-        loss = recon_loss + diff
-        return OrderedDict(loss=loss, recon_loss=recon_loss, reg_loss=diff, x_gen=x_tilde)
+        loss = recon_loss + 1e-6 * kl_loss
+        return OrderedDict(loss=loss, recon_loss=recon_loss, reg_loss=kl_loss, x_gen=x_tilde)
 
 
 class Discriminator(nn.Module):
@@ -246,7 +279,7 @@ class Solver(object):
     def build(self):
         self.d = Discriminator(128, patchify=not self.use_vit).to(ptu.device)
         self.d = Discriminator(128, patchify=True).to(ptu.device)
-        self.g = VectorQuantizedVAE(code_size=1024, use_vit=self.use_vit).to(ptu.device)
+        self.g = VAE(latent_dim=2).to(ptu.device)
         self.g_optimizer = torch.optim.Adam(self.g.parameters(), lr=2e-4, betas=(0.5, 0.9))
         self.g_scheduler = torch.optim.lr_scheduler.LambdaLR(self.g_optimizer,
                                                              lambda epoch: (self.n_epochs - epoch) / self.n_epochs,
@@ -317,6 +350,8 @@ class Solver(object):
                 g_l2_loss_train.append(vqgan_loss["recon_loss"].item())
                 g_lpips.append(lpips.item())
 
+                print(vqgan_loss['loss'].item(), vqgan_loss['recon_loss'].item(), vqgan_loss['reg_loss'].item(), d_loss.item())
+
                 self.batch_loss_history.append(d_loss.item())
 
             # step the learning rate
@@ -366,7 +401,7 @@ def q3a(train_data, val_data, reconstruct_data):
 
     """ YOUR CODE HERE """
     
-    solver = Solver(train_data, val_data, n_epochs=15)
+    solver = Solver(train_data, val_data, n_epochs=20)
     solver.build()
     discriminator_losses, l_pips_losses, l2_recon_train, l2_recon_test = solver.train_vqgan()
 
@@ -375,7 +410,8 @@ def q3a(train_data, val_data, reconstruct_data):
     with torch.no_grad():
         x_val = torch.tensor(val_data[0:100]).float().cuda()
         x_val = 2 *  x_val - 1
-        reconstructions = (solver.g(x_val)[0].permute(0, 2, 3, 1).cpu().numpy() + 1) * 0.5
+        reconstructions = (solver.g(x_val)[0].permute(0, 2, 3, 1).clamp(-1, 1).cpu().numpy() + 1) * 0.5
+    torch.save(solver.g.state_dict(), 'vae_cifar10.pt')
 
     return discriminator_losses, l_pips_losses, l2_recon_train, l2_recon_test, reconstructions
 
