@@ -72,6 +72,9 @@ class VAE(nn.Module):
 
     @torch.no_grad()
     def encode(self, x, return_dist=False):
+        if not isinstance(x, torch.Tensor):
+            x = torch.FloatTensor(x)
+            x = x.to(next(self.parameters()).device)
         h = self.encoder(x)
         moments = self.pre_quant(h)
         posterior = DiagonalGaussianDistribution(moments)
@@ -81,6 +84,9 @@ class VAE(nn.Module):
 
     @torch.no_grad()
     def decode(self, z):
+        if not isinstance(z, torch.Tensor):
+            z = torch.FloatTensor(z)
+            z = z.to(next(self.parameters()).device)
         return self.decoder(self.post_quant(z))
 
     def forward(self, x):
