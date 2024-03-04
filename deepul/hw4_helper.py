@@ -9,16 +9,11 @@ from deepul.models.vae import VAE
 
 from .utils import (
     save_training_plot,
-    save_scatter_2d,
     savefig,
     show_samples,
     get_data_dir,
 )
 
-
-def plot_training(losses, title, fname):
-    plt.figure()
-    n_itr = len(losses)
 
 
 ######################
@@ -92,11 +87,12 @@ def q2_save_results(fn):
     save_training_plot(
         train_losses,
         test_losses,
-        "Q2(a) Train Plot",
-        "results/q1_a_train_plot.png"
+        "Q2 Train Plot",
+        "results/q2_train_plot.png"
     ) 
 
-    show_samples(samples * 255.0, fname="results/q2_a_samples.png", title=f"CIFAR-10 generated samples")
+    samples = samples.reshape(-1, *samples.shape[2:])
+    show_samples(samples * 255.0, fname="results/q2_samples.png", title=f"CIFAR-10 generated samples")
 
 
 ######################
@@ -116,7 +112,7 @@ def load_pretrain_vae():
     vae = VAE()
     vae.load_state_dict(torch.load(os.path.join(data_dir, f"vae_cifar10.pth")))
     vae.eval()
-    return vae
+    return vae.cuda()
 
 
 def visualize_q3_data():
@@ -126,8 +122,21 @@ def visualize_q3_data():
     show_samples(imgs, title=f'CIFAR-10 Samples')
     print('Labels:', labels)
 
+    
+def q3a_save_results(fn):
+    train_data, _ = load_q3_data()
+    train_images = train_data.data / 255.0
+    idxs = torch.randint(0, len(train_images), (1000,))
+    images = train_images[idxs]
+    vae = load_pretrain_vae()
 
-def q3_save_results(fn):
+    recons, scale_factor = fn(images, vae)
+    recons = recons.reshape(-1, *recons.shape[2:])
+    show_samples(recons * 255.0, fname="results/q3_a_reconstructions.png", title=f"CIFAR-10 VAE Reconstructions")
+    print(f"Scale factor: {scale_factor:.4f}")
+
+
+def q3b_save_results(fn):
     train_data, test_data = load_q3_data()
     train_images = train_data.data / 255.0
     train_labels = np.array(train_data.targets, dtype=np.int32)
@@ -139,8 +148,11 @@ def q3_save_results(fn):
     save_training_plot(
         train_losses,
         test_losses,
-        "Q3(a) Train Plot",
-        "results/q1_a_train_plot.png"
+        "Q3(b) Train Plot",
+        "results/q3_b_train_plot.png"
     ) 
 
-    show_samples(samples * 255.0, fname="results/q3_a_samples.png", title=f"CIFAR-10 generated samples")
+    cfg_values = [1.0, 3.0, 7.5, 12.0]
+    for i in range(4):
+        cfg_val = cfg_values[i]
+        show_samples(samples[i] * 255.0, fname=f"results/q3_b_samples_cfg{cfg_val}.png", title=f"CIFAR-10 generated samples (CFG {cfg_val})")
