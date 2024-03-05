@@ -92,7 +92,7 @@ def q2_save_results(fn):
     ) 
 
     samples = samples.reshape(-1, *samples.shape[2:])
-    show_samples(samples * 255.0, fname="results/q2_samples.png", title=f"CIFAR-10 generated samples")
+    show_samples(samples * 255.0, fname="results/q2_samples.png", title=f"Q2 CIFAR-10 generated samples")
 
 
 ######################
@@ -132,7 +132,7 @@ def q3a_save_results(fn):
 
     recons, scale_factor = fn(images, vae)
     recons = recons.reshape(-1, *recons.shape[2:])
-    show_samples(recons * 255.0, fname="results/q3_a_reconstructions.png", title=f"CIFAR-10 VAE Reconstructions")
+    show_samples(recons * 255.0, fname="results/q3_a_reconstructions.png", title=f"Q3(a) CIFAR-10 VAE Reconstructions")
     print(f"Scale factor: {scale_factor:.4f}")
 
 
@@ -152,7 +152,17 @@ def q3b_save_results(fn):
         "results/q3_b_train_plot.png"
     ) 
 
-    cfg_values = [1.0, 3.0, 7.5, 12.0]
+    samples = samples.reshape(-1, *samples.shape[2:])
+    show_samples(samples * 255.0, fname=f"results/q3_b_samples.png", title=f"Q3(b) CIFAR-10 generated samples")
+
+
+def q3c_save_results(fn):
+    vae = load_pretrain_vae()
+    samples = fn(vae)
+    
+    cfg_values = [1.0, 3.0, 5.0, 7.5]
     for i in range(4):
         cfg_val = cfg_values[i]
-        show_samples(samples[i] * 255.0, fname=f"results/q3_b_samples_cfg{cfg_val}.png", title=f"CIFAR-10 generated samples (CFG {cfg_val})")
+        s = samples[i]
+        s = s.reshape(-1, *s.shape[2:])
+        show_samples(s * 255.0, fname=f"results/q3_c_samples_cfg{cfg_val}.png", title=f"Q3(c) CIFAR-10 generated samples (CFG {cfg_val})")
