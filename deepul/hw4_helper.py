@@ -84,6 +84,7 @@ def q2_save_results(fn):
     test_data = test_data.data / 255.0
     train_losses, test_losses, samples = fn(train_data, test_data)
     
+    print(f"Final Test Loss: {test_losses[-1]:.4f}")
     save_training_plot(
         train_losses,
         test_losses,
@@ -145,6 +146,7 @@ def q3b_save_results(fn):
     vae = load_pretrain_vae()
     train_losses, test_losses, samples = fn(train_images, train_labels, test_images, test_labels, vae)
     
+    print(f"Final Test Loss: {test_losses[-1]:.4f}")
     save_training_plot(
         train_losses,
         test_losses,
